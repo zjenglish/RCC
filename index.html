@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RCC Early College Consortium: Comprehensive Program Analysis</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --rcc-orange: #F39200;
+            --rcc-blue: #004B87;
+            --accent-teal: #17A2B8;
+            --success-green: #28A745;
+            --warning-red: #DC3545;
+            --neutral-gray: #6C757D;
+            --light-bg: #F8F9FA;
+            --white: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        /* SCROLL-TRIGGERED ANIMATIONS */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .animate {
+            animation-duration: 0.8s;
+            animation-timing-function: ease-out;
+            animation-fill-mode: forwards;
+        }
+
+        .animate-up { animation-name: slideInUp; }
+        .animate-left { animation-name: slideInLeft; }
+        .animate-right { animation-name: slideInRight; }
+        .animate-scale { animation-name: scaleIn; }
+        .animate-fade { animation-name: fadeIn; }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--rcc-blue) 0%, var(--rcc-orange) 100%);
+            color: white;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .logo-box {
+            height: 70px;
+            width: 140px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo-box img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            font-weight: 700;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 1em;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+            max-width: 700px;
+            line-height: 1.5;
+        }
+
+        .program-pathway {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .program-pathway img {
+            max-width: 100%;
+            max-height: 140px;
+            object-fit: contain;
+        }
+
+        /* Content Grid */
+        .content {
+            padding: 50px 40px;
+        }
+
+        .section-title {
+            font-size: 2em;
+            color: var(--rcc-blue);
+            margin-top: 60px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 4px solid var(--rcc-orange);
+            font-weight: 600;
+            opacity: 0;
+        }
+
+        .section-title:first-of-type {
+            margin-top: 0;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .grid-full {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .card {
+            background: var(--light-bg);
+            border-radius: 8px;
+            padding: 25px;
+            border-left: 4px solid var(--rcc-orange);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .card.blue {
+            border-left-color: var(--rcc-blue);
+        }
+
+        .card.green {
+            border-left-color: var(--success-green);
+        }
+
+        .card.red {
+            border-left-color: var(--warning-red);
+        }
+
+        .card h3 {
+            color: var(--rcc-blue);
+            font-size: 1.15em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .card p {
+            line-height: 1.6;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .quote-block {
+            background: linear-gradient(135deg, rgba(0,75,135,0.08), rgba(243,146,0,0.08));
+            border-left: 4px solid var(--rcc-orange);
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-style: italic;
+            color: #333;
+            opacity: 0;
+        }
+
+        .quote-author {
+            font-weight: 600;
+            color: var(--rcc-blue);
+            margin-top: 10px;
+            font-style: normal;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+            background: white;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+            opacity: 0;
+        }
+
+        .chart-small {
+            position: relative;
+            height: 250px;
+            background: white;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+            opacity: 0;
+        }
+
+        .metric-box {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 15px;
+            opacity: 0;
+        }
+
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: var(--rcc-orange);
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: var(--neutral-gray);
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+            opacity: 0;
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: #555;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            background: linear-gradient(135deg, var(--rcc-blue), var(--rcc-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+
+        .student-narrative {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--accent-teal);
+            opacity: 0;
+        }
+
+        .student-name {
+            font-weight: 700;
+            color: var(--rcc-blue);
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .student-narrative p {
+            line-height: 1.6;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .key-finding {
+            background: linear-gradient(135deg, rgba(0,75,135,0.05), rgba(243,146,0,0.05));
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--rcc-blue);
+            opacity: 0;
+        }
+
+        .key-finding strong {
+            color: var(--rcc-blue);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .key-finding p {
+            line-height: 1.6;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .wida-alignment {
+            background: linear-gradient(135deg, rgba(23,162,184,0.08), rgba(243,146,0,0.08));
+            border-left: 4px solid var(--accent-teal);
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            opacity: 0;
+        }
+
+        .wida-alignment strong {
+            color: var(--accent-teal);
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .wida-alignment p {
+            line-height: 1.5;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        .footer {
+            background: var(--light-bg);
+            padding: 30px 40px;
+            border-top: 1px solid #dee2e6;
+            text-align: center;
+            color: var(--neutral-gray);
+            font-size: 0.9em;
+        }
+
+        .recommendations-list {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 20px;
+            opacity: 0;
+        }
+
+        .recommendations-list ol {
+            margin-left: 20px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .recommendations-list li {
+            margin-bottom: 15px;
+        }
+
+        .recommendations-list strong {
+            color: var(--rcc-blue);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-container">
+                <div class="logo-box">
+                    <img src="bps_logo.png" alt="Boston Public Schools Logo">
+                </div>
+                <div class="logo-box">
+                    <img src="rcc_logo.png" alt="Roxbury Community College Logo">
+                </div>
+                <div class="logo-box">
+                    <img src="cclr_logo.png" alt="College, Career & Life Readiness Logo">
+                </div>
+            </div>
+            <h1>RCC Early College Consortium ENG101</h1>
+            <p><strong>Comprehensive Program Analysis & Student Success Report</strong><br>
+            Spring 2026 | Mid-Year Progress, End-of-Term Assessment & WIDA-Aligned Curriculum Review</p>
+            <div class="program-pathway">
+                <img src="hs2ec_logo.png" alt="HS2EC Program Pathway">
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- EXECUTIVE SUMMARY -->
+            <h2 class="section-title">Executive Summary: Program Impact & Student Trajectory</h2>
+
+            <div class="key-finding animate-up">
+                <strong>🎯 Overall Finding:</strong>
+                <p>Students demonstrated significant growth across three critical dimensions: academic confidence, support system utilization, and college readiness. Mid-semester concerns about time management and complex topics were largely addressed by end-of-term through consistent liaison support, WIDA-aligned scaffolding, and structured academic guidance.</p>
+            </div>
+
+            <div class="grid-3">
+                <div class="card blue animate-scale" style="opacity: 0;">
+                    <h3>Survey Participation</h3>
+                    <div class="metric-box">
+                        <div class="metric-value">27</div>
+                        <div class="metric-label">Total Responses Across 3 Surveys</div>
+                    </div>
+                    <p style="font-size: 0.85em; margin-top: 10px;"><strong>Liaison:</strong> 3 responses | <strong>Mid-Year:</strong> 10 responses | <strong>End-of-Term:</strong> 4 responses</p>
+                </div>
+                <div class="card green animate-scale" style="opacity: 0;">
+                    <h3>College Readiness</h3>
+                    <div class="metric-box">
+                        <div class="metric-value">100%</div>
+                        <div class="metric-label">Ready for Independent College Coursework</div>
+                    </div>
+                    <p style="font-size: 0.85em; margin-top: 10px;">End-of-term respondents report confidence to take college courses independently, without high school peers.</p>
+                </div>
+                <div class="card animate-scale" style="opacity: 0;">
+                    <h3>Student Satisfaction</h3>
+                    <div class="metric-box">
+                        <div class="metric-value">5/5</div>
+                        <div class="metric-label">Average End-of-Term Rating</div>
+                    </div>
+                    <p style="font-size: 0.85em; margin-top: 10px;">Students report high satisfaction with course experience and instructor support.</p>
+                </div>
+            </div>
+
+            <!-- MID-YEAR PROGRESS -->
+            <h2 class="section-title">Mid-Year Check-In: Challenge Identification (April 2026)</h2>
+
+            <p style="margin-bottom: 20px; opacity: 0;" class="animate-fade">
+                <strong>Context:</strong> The mid-year survey (10 respondents) was administered in early April 2026 to identify emerging challenges. At this point, students had completed approximately 6 weeks of coursework, including diagnostic assessments, rhetorical analysis foundations, and the beginning of essay writing instruction.
+            </p>
+
+            <div class="grid-2">
+                <div class="card animate-left" style="opacity: 0;">
+                    <h3>Self-Assessed Performance</h3>
+                    <div class="chart-small">
+                        <canvas id="midYearChart"></canvas>
+                    </div>
+                    <p style="font-size: 0.85em; margin-top: 10px;"><strong>Average: 4.2/10</strong> — Students reported feeling behind and uncertain at mid-semester. 60% rated themselves 1-4, indicating significant academic pressure.</p>
+                </div>
+
+                <div class="card red animate-right" style="opacity: 0;">
+                    <h3>Identified Challenges</h3>
+                    <p style="margin-top: 15px;"><strong>Primary obstacles reported:</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 10px; line-height: 1.8;">
+                        <li><strong>Understanding complex topics (60%)</strong> — Students struggled with abstract rhetorical concepts and analytical writing frameworks.</li>
+                        <li><strong>Time management (40%)</strong> — Balancing high school and college coursework created scheduling conflicts.</li>
+                        <li><strong>Balancing work/life/school (40%)</strong> — Many students work during evenings/weekends.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- LIAISON PROGRESS UPDATES -->
+            <h2 class="section-title">Liaison Progress Narratives: Mid-Semester Student Growth</h2>
+
+            <p style="margin-bottom: 25px; opacity: 0;" class="animate-fade">
+                <strong>Source:</strong> April 2, 2026 Update from Antonio Lopez & Johan Villalona (BINcA Liaisons). These detailed narratives show instructor and liaison observations of specific students and their academic trajectories.
+            </p>
+
+            <div class="student-narrative animate-up" style="opacity: 0;">
+                <div class="student-name">Mamie Sheriff</div>
+                <p>"Mamie has attended every class since being added mid-semester and is fully engaged. Her Irony Analysis presentation was a real standout — she started nervously but made a deliberate mid-presentation shift, putting down her phone, making eye contact, and speaking in her own voice. She connected the text to women's history and the present day with genuine emotional insight. She cited herself 5/10 on the check-in and flagged confidence and time management as areas she is working on."</p>
+                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e9ecef; font-size: 0.85em; color: #666;"><strong>Progress Indicator:</strong> Shift from anxiety to engagement; developing confidence in public speaking and text analysis.</div>
+            </div>
+
+            <div class="student-narrative animate-up" style="opacity: 0;">
+                <div class="student-name">Muzamil Miakheil</div>
+                <p>"Muzamil has near-perfect attendance and is consistently present and participatory. He presented on 3/26 and made a genuine effort. He is working on an important oral fluency milestone — building the skill of grouping sounds into distinct words and phrases for greater clarity. With continued reading-aloud practice and vocabulary work in context, he has a strong foundation to build on. Rated himself 7/10, showing real self-awareness."</p>
+                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e9ecef; font-size: 0.85em; color: #666;"><strong>WIDA Alignment:</strong> Addressing Speaking proficiency through fluency practice and contextual vocabulary building (Speaking cluster).</div>
+            </div>
+
+            <div class="student-narrative animate-up" style="opacity: 0;">
+                <div class="student-name">Mediy Petit Frere & Robertina Decimus</div>
+                <p>"Both have been regularly attending and showing real growth in engagement — they are contributing positively and finding their footing in the course. Absences on 3/26 meant incomplete midterm presentations; they have been asked to present after class hours. Both are on track as semester progresses."</p>
+                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e9ecef; font-size: 0.85em; color: #666;"><strong>Progress Indicator:</strong> Overcoming initial attendance barriers; developing engagement and confidence.</div>
+            </div>
+
+            <div class="student-narrative animate-up" style="opacity: 0;">
+                <div class="student-name">Bernardette Jean Pierre & Luce Marthe Fortune</div>
+                <p>"Bernardette has been a consistent presence in class and is showing up as a focused and productive member of the learning community. Luce has maintained strong attendance throughout the semester with only one recorded absence. Both have incomplete midterm presentations but have been asked to present after class hours."</p>
+                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e9ecef; font-size: 0.85em; color: #666;"><strong>Progress Indicator:</strong> Consistency and engagement; on track to complete coursework.</div>
+            </div>
+
+            <!-- END-OF-TERM SURVEY -->
+            <h2 class="section-title">End-of-Term Assessment: Program Success & Readiness (May-June 2026)</h2>
+
+            <p style="margin-bottom: 25px; opacity: 0;" class="animate-fade">
+                <strong>Context:</strong> The end-of-term survey (4 respondents) collected final assessments in May/June 2026. Respondents reflected on overall satisfaction, support utilization, college readiness, and barriers encountered. The improvement from mid-year self-assessments to end-of-term confidence measures indicates significant program efficacy.
+            </p>
+
+            <div class="grid-2">
+                <div class="card animate-left" style="opacity: 0;">
+                    <h3>Overall Satisfaction & Support</h3>
+                    <div class="chart-container">
+                        <canvas id="endOfTermChart"></canvas>
+                    </div>
+                    <p style="font-size: 0.85em; margin-top: 10px;"><strong>5/5 stars across both dimensions.</strong> All end-of-term respondents reported high satisfaction and feeling supported throughout the course. This marks a significant improvement from the mid-year 4.2/10 self-assessment.</p>
+                </div>
+
+                <div class="card green animate-right" style="opacity: 0;">
+                    <h3>College Readiness & Independence</h3>
+                    <div class="chart-small">
+                        <canvas id="readinessChart"></canvas>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <div class="stat-row">
+                            <span class="stat-label">Understand Course Material</span>
+                            <span class="stat-value">✓ Agree</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Submitting Assignments On Time</span>
+                            <span class="stat-value">✓ Agree</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Comfortable Asking Instructor Questions</span>
+                            <span class="stat-value">✓ Agree</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Managing Time Effectively</span>
+                            <span class="stat-value">⚠ Neutral</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STUDENT TESTIMONIAL -->
+            <h2 class="section-title">Student Voices: What Worked</h2>
+
+            <div class="quote-block animate-up" style="opacity: 0;">
+                <p>"Getting work done and understanding the material."</p>
+                <div class="quote-author">— Katherine Marquez Lainez, End-of-Term Survey</div>
+            </div>
+
+            <p style="margin-bottom: 20px; opacity: 0;" class="animate-fade">
+                When asked what 2-3 things worked best for them, the end-of-term respondent emphasized the balance of productivity and comprehension — both foundational to college success. This aligns with the course's focus on scaffolded writing instruction and repeated practice with rhetorical analysis.
+            </p>
+
+            <!-- TECH BARRIERS & SUPPORT -->
+            <h2 class="section-title">Technology Barriers: Canvas, myRCC, and Campus Systems</h2>
+
+            <div class="card animate-left" style="opacity: 0;">
+                <h3>Hardest Technology to Learn</h3>
+                <p style="margin-top: 15px;"><strong>Reported by end-of-term respondents:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px; line-height: 1.8;">
+                    <li><strong>myRCC Portal (Key Issue):</strong> Navigation, authentication, accessing grades/transcripts</li>
+                    <li><strong>Canvas Integration:</strong> Submitting assignments, accessing course materials asynchronously</li>
+                    <li><strong>College Email/Identity:</strong> Distinguishing college email from personal email systems</li>
+                </ul>
+                <p style="margin-top: 15px; font-size: 0.85em; color: #666;"><strong>Liaison Feedback:</strong> "Access to Canvas was extremely helpful to track student progress last semester. Restoring access to Canvas in any capacity would make a big difference."</p>
+            </div>
+
+            <!-- WIDA ALIGNMENT SHOWCASE -->
+            <h2 class="section-title">WIDA Standards Alignment: Instructional Evidence</h2>
+
+            <p style="margin-bottom: 25px; opacity: 0;" class="animate-fade">
+                The ENG101 course was designed with explicit WIDA alignment. Below are key instructional moves that address WIDA proficiency bands, particularly targeting students at Developing and Expanding levels.
+            </p>
+
+            <div class="grid-2">
+                <div class="wida-alignment animate-left" style="opacity: 0;">
+                    <strong>Day 1-2: Foundational Engagement</strong>
+                    <p><strong>Activity:</strong> Classmate Bingo, Syllabus Jigsaw, Pair/Share through Responses<br>
+                    <strong>WIDA Target:</strong> Speaking cluster — Building speaking confidence and peer interaction at Developing level. Students use sentence frames and partner support to discuss course expectations.<br>
+                    <strong>ESL Support:</strong> Visual jigsaw pieces, word banks, partner scaffolding.</p>
+                </div>
+
+                <div class="wida-alignment animate-right" style="opacity: 0;">
+                    <strong>Day 3-4: Rhetorical Analysis Foundations</strong>
+                    <p><strong>Activity:</strong> Rhetorical Strategies Gallery Walk, Ethos/Pathos/Logos stations, Small Group Annotation<br>
+                    <strong>WIDA Target:</strong> Reading cluster — Analyzing academic language and persuasive strategies at Expanding level. Students move from identifying terms to explaining their effect.<br>
+                    <strong>ESL Support:</strong> Colored graphic organizers, sentence starters, visual examples.</p>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="wida-alignment animate-left" style="opacity: 0;">
+                    <strong>Day 5-6: Thesis Building & Writing Frames</strong>
+                    <p><strong>Activity:</strong> Thesis Workshop, Graphic Organizers, Comparing Voice (Kincaid & Cooper texts)<br>
+                    <strong>WIDA Target:</strong> Writing cluster — Producing thesis statements with supported evidence at Expanding/Bridging levels. Students use graphic organizers to scaffold argument development.<br>
+                    <strong>ESL Support:</strong> Thesis sentence frames, evidence scaffolds, peer review protocols.</p>
+                </div>
+
+                <div class="wida-alignment animate-right" style="opacity: 0;">
+                    <strong>Day 7-9: Text Analysis & Presentation Skills</strong>
+                    <p><strong>Activity:</strong> Irony Instruction, Essay Analysis Packet, Slide Etiquette & Presentation Practice<br>
+                    <strong>WIDA Target:</strong> Speaking cluster — Delivering academic presentations with visual aids at Bridging level. Students practice pacing, emphasis, and eye contact.<br>
+                    <strong>ESL Support:</strong> Presentation rubric with sentence starters, slide templates, practice with feedback.</p>
+                </div>
+            </div>
+
+            <div class="wida-alignment animate-up" style="opacity: 0;">
+                <strong>Embedded ESL Supports Throughout Curriculum</strong>
+                <p>Exit tickets after each major lesson; vocabulary instruction in context (grouping sounds, syntax practice); sentence frames for discussion and writing; graphic organizers for planning; peer review with sentence starters; repeated reading-aloud practice for fluency development.</p>
+            </div>
+
+            <!-- LIAISON FEEDBACK -->
+            <h2 class="section-title">Liaison Feedback: Program Strengths & Recommendations</h2>
+
+            <div class="grid-2">
+                <div class="card blue animate-left" style="opacity: 0;">
+                    <h3>What Worked Well</h3>
+                    <div class="quote-block" style="background: white; margin: 15px 0; padding: 15px;">
+                        <p>"Zachary's clear, consistent, and well-organized updates on the students in the class were extremely helpful. They allowed me to both celebrate student accomplishments and check-in on students when they were behind."</p>
+                    </div>
+                    <p style="margin-top: 15px; line-height: 1.6;"><strong>Liaison Feedback:</strong> Communication and coordination between instructor and school liaisons was identified as a key success factor. Regular updates enabled proactive support and celebration of progress.</p>
+                </div>
+
+                <div class="card red animate-right" style="opacity: 0;">
+                    <h3>Recommendations for 2026-27</h3>
+                    <ul style="margin-left: 20px; margin-top: 15px; line-height: 1.8; color: #555;">
+                        <li><strong>Assignment Schedule Sharing:</strong> Provide liaisons with assignment timeline to help manage student workload during school day.</li>
+                        <li><strong>Canvas Access Restoration:</strong> Liaisons request continued/restored access to Canvas for progress monitoring.</li>
+                        <li><strong>Essay Length Guidelines:</strong> Consider scaffolding large essays (6-8 pages) into shorter milestones to reduce overwhelm.</li>
+                        <li><strong>Digital Format Transition:</strong> Move from paper-based forms to digital tracking for efficiency.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- KEY FINDINGS SYNTHESIS -->
+            <h2 class="section-title">Synthesis: Growth from Mid-Year to End-of-Term</h2>
+
+            <div class="key-finding animate-up" style="opacity: 0;">
+                <strong>1. Academic Confidence Trajectory</strong>
+                <p><strong>Mid-Year:</strong> 4.2/10 self-assessment | <strong>End-of-Term:</strong> 8/10 average performance rating<br>
+                <em>Interpretation:</em> Students overcame the mid-semester "imposter syndrome" through successful completion of major assignments, positive instructor and liaison feedback, and cumulative mastery of rhetorical concepts.</p>
+            </div>
+
+            <div class="key-finding animate-up" style="opacity: 0;">
+                <strong>2. Time Management Remains a Challenge—But Manageable</strong>
+                <p><strong>Mid-Year:</strong> 40% cited time management/procrastination as a challenge | <strong>End-of-Term:</strong> Some improvement but still noted as "neutral" on time management scale<br>
+                <em>Interpretation:</em> While time management didn't disappear as a concern, students learned to compensate through structured support and clear deadlines. The 6-8 page final essay was cited as overwhelming; breaking into shorter milestones would help.</p>
+            </div>
+
+            <div class="key-finding animate-up" style="opacity: 0;">
+                <strong>3. Support Systems Work—Especially Liaisons & Instructor Communication</strong>
+                <p><strong>Finding:</strong> 100% of end-of-term respondents reported feeling supported. Liaisons cited instructor communication as crucial.<br>
+                <em>Interpretation:</em> Consistent touchpoints between school liaisons, instructor, and students created a safety net. This coordination should be formalized in 2026-27 through regular updates and shared dashboards.</p>
+            </div>
+
+            <div class="key-finding animate-up" style="opacity: 0;">
+                <strong>4. College Readiness Achievement</strong>
+                <p><strong>Finding:</strong> 100% of end-of-term respondents report readiness to take college courses independently, without high school peers.<br>
+                <em>Interpretation:</em> The HS2EC model successfully bridges the gap. Students entered nervous about college systems and left confident in their ability to navigate college coursework and support resources.</p>
+            </div>
+
+            <!-- RECOMMENDATIONS FOR 2026-27 -->
+            <h2 class="section-title">Recommendations for Program Enhancement: 2026-27</h2>
+
+            <div class="recommendations-list animate-up" style="opacity: 0;">
+                <ol>
+                    <li><strong>Formalize Liaison Communication Protocol:</strong> Monthly emails with assignment calendars, student progress flags, and celebration milestones. Use shared Canvas/Dashboard access for real-time updates.</li>
+                    <li><strong>Scaffold Large Writing Assignments:</strong> Break the 6-8 page final essay into 3-4 staged submissions: thesis (1 page) → outline with evidence (2 pages) → draft with feedback → final. Reduces overwhelm and increases revision opportunity.</li>
+                    <li><strong>Enhanced WIDA-Aligned Exit Tickets:</strong> Continue exit tickets but add optional sentence frames for ESL students to build written expression skills. Track patterns to identify students needing additional writing support.</li>
+                    <li><strong>Technology Onboarding Module:</strong> Create a 30-min mandatory orientation covering Canvas, myRCC portal, college email, and troubleshooting. Offer make-up sessions for students who miss the initial session.</li>
+                    <li><strong>Time Management Workshop (Mid-Semester):</strong> Partner with student success coach to deliver a 45-min workshop on college study skills, procrastination strategies, and workload balancing. Include time-blocking template.</li>
+                    <li><strong>Peer Mentorship Pairing:</strong> Recruit students who successfully completed ENG101 to mentor new HS2EC cohort. Peer mentors model strategies and normalize the college experience.</li>
+                    <li><strong>Expand End-of-Term Survey Sample:</strong> Current 4 responses is a small N. Aim for 8-10 end-of-term responses to capture fuller picture. Consider incentives for completion.</li>
+                    <li><strong>Maintain Liaison Visibility & Celebration:</strong> Continue the practice of recognizing liaison contributions; include liaison names and quotes in program communications and celebrations.</li>
+                </ol>
+            </div>
+
+            <!-- CLOSING -->
+            <h2 class="section-title">Conclusion: A Model Program</h2>
+
+            <p style="margin-bottom: 20px; opacity: 0;" class="animate-fade">
+                The RCC Early College Consortium ENG101 course demonstrates that high school students can successfully engage in rigorous college coursework when supported by three pillars: (1) <strong>clear, scaffolded instruction with WIDA alignment</strong>, (2) <strong>consistent liaison and instructor communication</strong>, and (3) <strong>structured support for college readiness and independence</strong>.
+            </p>
+
+            <p style="margin-bottom: 20px; opacity: 0;" class="animate-fade">
+                Students entered nervous about college systems and abstract rhetorical concepts. Mid-semester, they reported low confidence (4.2/10) and struggled with time management. By end-of-term, they had completed college-level essays, presentations, and assessments — and reported 100% readiness to take future college courses independently.
+            </p>
+
+            <p style="opacity: 0;" class="animate-fade">
+                This program model is replicable, scalable, and worthy of investment. The 2026-27 cohort will benefit from formalized liaison protocols, scaffolded writing assignments, and technology onboarding — changes that cost little but amplify student success.
+            </p>
+
+        </div>
+
+        <div class="footer">
+            <p><strong>RCC Early College Consortium Analysis</strong> | Compiled by Zachary English, Language Acquisition Specialist</p>
+            <p style="margin-top: 10px;">Data Source: Liaison Quick Survey (3), Mid-Year Progress Check-In (10), End-of-Term Survey (4) | Curriculum Analysis: WIDA-Aligned ENG101 Syllabus & Lesson Plan | Spring 2026</p>
+            <p style="margin-top: 15px; font-size: 0.85em;">In partnership with Boston Public Schools, Roxbury Community College, & BINcA (Boston Incubator for Civic Action)</p>
+        </div>
+    </div>
+
+    <script>
+        // Intersection Observer for scroll-triggered animations
+        const observerOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const delayMap = {
+                        'section-title': 0,
+                        'card': 0.1,
+                        'animate-up': 0,
+                        'animate-left': 0.05,
+                        'animate-right': 0.1,
+                        'animate-scale': 0.15,
+                        'animate-fade': 0,
+                        'quote-block': 0,
+                        'student-narrative': 0.05,
+                        'key-finding': 0.1,
+                        'wida-alignment': 0.05,
+                        'chart-container': 0,
+                        'chart-small': 0,
+                        'metric-box': 0.05,
+                        'stat-row': 0.05,
+                        'recommendations-list': 0
+                    };
+
+                    let delay = 0;
+                    Object.keys(delayMap).forEach(className => {
+                        if (el.classList.contains(className)) {
+                            delay = delayMap[className];
+                        }
+                    });
+
+                    const animClass = el.classList[el.classList.length - 1];
+                    if (animClass && animClass.startsWith('animate-')) {
+                        el.style.animation = `${animClass.replace('animate-', '')} 0.8s ease-out ${delay}s forwards`;
+                    }
+
+                    el.style.opacity = '1';
+                    observer.unobserve(el);
+                }
+            });
+        }, observerOptions);
+
+        // Observe all animatable elements
+        document.querySelectorAll('.section-title, .card, .quote-block, .student-narrative, .key-finding, .wida-alignment, .chart-container, .chart-small, .metric-box, .stat-row, .recommendations-list, .animate-up, .animate-left, .animate-right, .animate-scale, .animate-fade').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Chart.js configurations
+        Chart.defaults.animation.duration = 2000;
+        Chart.defaults.animation.easing = 'easeInOutQuart';
+
+        // Mid-Year Self-Assessment
+        const midYearCtx = document.getElementById('midYearChart').getContext('2d');
+        new Chart(midYearCtx, {
+            type: 'bar',
+            data: {
+                labels: ['1-2 (Struggling)', '3-4 (Behind)', '5-6 (On Track)', '7-8 (Good)', '9-10 (Excellent)'],
+                datasets: [{
+                    label: 'Number of Students',
+                    data: [1, 4, 3, 1, 1],
+                    backgroundColor: ['#DC3545', '#FFC107', '#F39200', '#FFC107', '#28A745'],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'x',
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 2000, easing: 'easeInOutQuart' },
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, max: 5 } }
+            }
+        });
+
+        // End-of-Term Satisfaction
+        const endOfTermCtx = document.getElementById('endOfTermChart').getContext('2d');
+        new Chart(endOfTermCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['5/5 Satisfied', '5/5 Supported'],
+                datasets: [{
+                    data: [100, 100],
+                    backgroundColor: ['#28A745', '#17A2B8'],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 2000, easing: 'easeInOutQuart' },
+                plugins: { legend: { position: 'bottom', labels: { padding: 15, font: { size: 12 } } } }
+            }
+        });
+
+        // College Readiness
+        const readinessCtx = document.getElementById('readinessChart').getContext('2d');
+        new Chart(readinessCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Ready for Independent College', 'Not Ready'],
+                datasets: [{
+                    data: [100, 0],
+                    backgroundColor: ['#28A745', '#E9ECEF'],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 2000, easing: 'easeInOutQuart' },
+                plugins: { legend: { position: 'bottom', labels: { padding: 15, font: { size: 12 } } } }
+            }
+        });
+    </script>
+</body>
+</html>
